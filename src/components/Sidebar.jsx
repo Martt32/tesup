@@ -1,4 +1,4 @@
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard,
   Layers,
@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { logout } from "../utils/auth";
+import logo from "../assets/logo.png";
 
 const mainLinks = [
   { to: "/app/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -31,6 +32,7 @@ const bottomLinks = [
 ];
 
 export default function Sidebar({ collapsed, setCollapsed }) {
+  const navigate = useNavigate();
   const handleLogout = async () => {
     const result = await logout();
     if (result.success) {
@@ -42,16 +44,20 @@ export default function Sidebar({ collapsed, setCollapsed }) {
 
   return (
     <aside
-      className={`fixed top-0 left-0 h-full bg-white/5 backdrop-blur-xl 
+      className={`fixed  top-0 left-0 h-full bg-white/5 backdrop-blur-xl 
       border-r border-white/10 shadow-lg transition-all duration-300 
-      ${collapsed ? "w-20" : "w-64"} flex flex-col justify-between`}
+      ${
+        collapsed ? "hidden w-20" : "w-64"
+      } md:flex flex-col justify-between z-1`}
     >
       {/* ===== Top ===== */}
       <div>
         {/* Logo */}
         <div className="flex items-center justify-between p-5">
           {!collapsed && (
-            <span className="text-2xl font-bold text-purple-500">TesUp</span>
+            <span className="text-2xl font-bold text-purple-500">
+              <img className="rounded-full w-10 h-10" src={logo} alt="logo" />
+            </span>
           )}
           <button
             onClick={() => setCollapsed(!collapsed)}
@@ -66,7 +72,7 @@ export default function Sidebar({ collapsed, setCollapsed }) {
         </div>
 
         {/* Main Nav */}
-        <nav className="mt-6 space-y-2 px-3">
+        <nav className="mt-4 space-y-2 px-3">
           {mainLinks.map(({ to, label, icon: Icon }) => (
             <SidebarLink
               key={to}

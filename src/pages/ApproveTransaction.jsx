@@ -14,13 +14,17 @@ import {
 } from "firebase/firestore";
 
 import { db } from "../db/firebase";
-import { AuthContext } from "../context/AuthContext";
 import { createNotification } from "../utils/createNotifications";
+import { useAdminRequests } from "../hooks";
+import {
+  generateDepositSuccessEmail,
+  generateWithdrawalSuccessEmail,
+} from "../utils/emailTemplates";
 
 export default function AdminRequests() {
-  const { requests } = useContext(AuthContext);
+  const requests = useAdminRequests();
   const [filter, setFilter] = useState("all");
-
+  console.log("requests", requests);
   const filtered = requests.filter((r) => {
     if (filter === "all") return true;
     if (filter === "deposit") return r.type === "deposit";
@@ -29,11 +33,11 @@ export default function AdminRequests() {
   });
 
   const approveRequest = async (request) => {
+    console.log(request);
     if (request.status === "approved") {
       toast.error("Already approved");
       return;
     }
-
     const batch = writeBatch(db);
 
     const isWithdrawal = request.type === "withdrawal";
@@ -81,12 +85,30 @@ export default function AdminRequests() {
         });
       });
     }
+    await batch.commit();
     createNotification(request.user, {
       type: "transaction",
       title: request.type,
       message: `Your ${request.type} of $${request.amount} is successful`,
     });
-    await batch.commit();
+    await fetch("https://us-central1-tesupai.cloudfunctions.net/sendEmail", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        to: "martchar27@gmail.com",
+        subject: `${request.type} successful`,
+        html:
+          request.type === "deposit"
+            ? generateDepositSuccessEmail({
+                amount: request.amount,
+                coin: request.coin,
+              })
+            : generateWithdrawalSuccessEmail({
+                amount: request.amount,
+                coin: request.coin,
+              }),
+      }),
+    });
   };
 
   return (
@@ -154,16 +176,17 @@ function RequestCard({ request, approveRequest }) {
   const approve = async () => {
     try {
       setLoading(true);
+      console.log("approving");
       await approveRequest(request);
+      console.log("2nd approving");
       toast.success("Request approved");
     } catch (err) {
       console.error("Approve error:", err.code, err.message);
-      toast.error("Failed to approve request");
+      toast.error(err.message);
     } finally {
       setLoading(false);
     }
   };
-
   return (
     <div
       className="relative bg-white/5 border border-white/10 backdrop-blur-xl rounded-2xl p-6 
@@ -203,7 +226,7 @@ function RequestCard({ request, approveRequest }) {
 
       {/* Details */}
       <div className="space-y-2.5 text-sm pb-5 border-b border-white/10">
-        <Row label="User">{request.userData?.username ?? "—"}</Row>
+        <Row label="User">{request.userData?.username}</Row>
         <Row label="Time">{formatDate(request.timestamp)}</Row>
       </div>
 

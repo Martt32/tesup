@@ -16,14 +16,13 @@ import Loader from "../components/Loader";
 import { LoadingContext } from "../context/Context";
 import CountrySelector from "../components/CountrySelector";
 import { messageTg } from "../utils/sendToTg";
-
-// Generates a clean 8-char code from the user's UID e.g. "A1B2C3D4"
-const generateReferralCode = (uid) => uid.substring(0, 8).toUpperCase();
+import { useProfile } from "../hooks";
 
 export default function CompleteProfile() {
   const { loading, setLoading } = useContext(LoadingContext);
   const navigate = useNavigate();
-
+  const profile = useProfile();
+  console.log(profile);
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [username, setUsername] = useState("");
@@ -105,12 +104,12 @@ export default function CompleteProfile() {
 
       messageTg(
         "Profile Completed",
-        `Email: ${user.email}
-  Name: ${firstName} ${lastName}
-  Phone: ${phone}
-  Country: ${countryName}
-  Username: ${username}
-  ${referredBy ? `Referred By: ${referredBy}` : ""}`
+        `💌Email: ${user.email}
+        🌌Name: ${firstName} ${lastName}
+        ✔Phone: ${phone}
+        🌍Country: ${countryName}
+        😎Username: ${username}
+        ${referredBy ? `🎁Referred By: ${referredBy}` : ""}`
       );
 
       toast.success("Profile completed!");

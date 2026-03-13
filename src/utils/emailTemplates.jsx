@@ -145,7 +145,7 @@ export const generateWithdrawalSuccessEmail = ({ name, amount, coin }) => `
     <div style="text-align: center; margin-bottom: 20px;">
       <h1 style="font-size: 28px; margin: 0;">Withdrawal Processed 💸</h1>
       <p style="font-size: 16px; margin-top: 5px;">
-        Hi ${name}, your withdrawal request has been successfully processed.
+        Congrats, your withdrawal request has been successfully processed.
       </p>
     </div>
 
@@ -172,7 +172,7 @@ export const generateWithdrawalSuccessEmail = ({ name, amount, coin }) => `
     </p>
 
     <div style="text-align: center; margin-top: 30px;">
-      <a href="https://yourplatform.com/dashboard" style="
+      <a href="https://tesup.io/dashboard" style="
         display: inline-block;
         padding: 12px 25px;
         background: #fff;
@@ -208,7 +208,7 @@ export const generateDepositSuccessEmail = ({ name, amount, coin }) => `
     <div style="text-align: center; margin-bottom: 20px;">
       <h1 style="font-size: 28px; margin: 0;">Deposit Successful 💰</h1>
       <p style="font-size: 16px; margin-top: 5px;">
-        Hi ${name}, your deposit has been successfully confirmed.
+        Congrats, your deposit has been successfully confirmed.
       </p>
     </div>
 
@@ -235,7 +235,7 @@ export const generateDepositSuccessEmail = ({ name, amount, coin }) => `
     </p>
 
     <div style="text-align: center; margin-top: 30px;">
-      <a href="https://yourplatform.com/dashboard" style="
+      <a href="https://tesup.io/dashboard" style="
         display: inline-block;
         padding: 12px 25px;
         background: #fff;

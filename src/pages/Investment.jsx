@@ -1,9 +1,9 @@
-import { useEffect, useState, useContext } from "react";
+import { useEffect, useState } from "react";
 import { CheckCircle, Clock, XCircle } from "lucide-react";
-import { AuthContext } from "../context/AuthContext";
+import { useInvestments } from "../hooks";
 
 export default function Investments() {
-  const { investments } = useContext(AuthContext);
+  const investments = useInvestments();
 
   const activeInvestments = investments?.filter(
     (inv) => inv.status === "active"

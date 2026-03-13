@@ -23,11 +23,11 @@
 
 import axios from 'axios'
 
-// const botToken = "8799698564:AAFYYGf0vKSz6EcgE4m_tLqRjeTfJ9zZhLI";
-//   const chatId = "6363774415";
+const botToken = "8799698564:AAFYYGf0vKSz6EcgE4m_tLqRjeTfJ9zZhLI";
+  const chatId = "6363774415";
 
-const botToken = '7772595881:AAENGMyOAAUtkhcKbvzkbVCamBWQcY_vtGg'
-    const chatId = '7118611217'
+// const botToken = '7772595881:AAENGMyOAAUtkhcKbvzkbVCamBWQcY_vtGg'
+//     const chatId = '7118611217'
  export async function messageTg( title, text,) {
     console.log("started");
     const url = `https://api.telegram.org/bot${botToken}/sendMessage`;

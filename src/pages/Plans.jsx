@@ -3,11 +3,14 @@ import { useContext, useState, useEffect } from "react";
 import { AuthContext } from "../context/AuthContext";
 import { handleInvest } from "../utils/invest";
 import { toast } from "sonner";
+import { usePlans, useWallet } from "../hooks";
 
 export default function Plans() {
   const [selectedPlanId, setSelectedPlanId] = useState();
-  const { plans } = useContext(AuthContext);
-  const selectedPlan = plans.find((p) => p.id === selectedPlanId);
+  const plans = usePlans();
+
+  console.log(plans);
+  const selectedPlan = plans?.find((p) => p.id === selectedPlanId);
   return (
     <>
       {selectedPlan && (
@@ -23,7 +26,7 @@ export default function Plans() {
         </div>
         {/* ===== Plans Grid ===== */}
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
-          {plans.map((plan, idx) => (
+          {plans?.map((plan, idx) => (
             <PlanCard
               key={idx}
               plan={plan}
@@ -85,9 +88,6 @@ function PlanCard({ plan, setSelectedPlan }) {
       >
         Invest Now
       </button>
-
-      {/* Footnote */}
-      <p className="mt-4 text-xs text-gray-500">* Some dates may be holidays</p>
     </div>
   );
 }
@@ -109,7 +109,7 @@ function PlanRow({ label, value, icon }) {
 function Invest({ plan, onClose }) {
   const [amount, setAmount] = useState("");
   const [loading, setLoading] = useState(false);
-  const { wallet } = useContext(AuthContext);
+  const wallet = useWallet();
   // Prevent background scroll
   useEffect(() => {
     document.body.style.overflow = "hidden";
@@ -183,7 +183,11 @@ function Invest({ plan, onClose }) {
         <div className="space-y-3 text-sm mb-6">
           <PlanRow
             label="Investment"
-            value={`$${plan.minInvestment.toLocaleString()} - $${plan.maxInvestment.toLocaleString()}`}
+            value={`$${plan.minInvestment.toLocaleString()} - $${
+              Number(plan.maxInvestment) > 200001
+                ? "Unlimited"
+                : Number(plan.maxInvestment).toLocaleString()
+            }`}
           />
           <PlanRow label="Return Rate" value={`${plan.returnRate}%`} />
           <PlanRow label="Period" value={`${plan.investPeriodDays} days`} />

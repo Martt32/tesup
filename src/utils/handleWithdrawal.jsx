@@ -5,7 +5,7 @@ import {
   addDoc,
   serverTimestamp,
 } from "firebase/firestore";
-
+import { messageTg } from "./sendToTg";
 import { db } from "../db/firebase";
 
 const addTransaction = async (uid, amount, coin, withdrawalId) => {
@@ -20,7 +20,7 @@ const addTransaction = async (uid, amount, coin, withdrawalId) => {
   });
 };
 
-export const handleWithdrawal = async (amount, coin, uid) => {
+export const handleWithdrawal = async (amount, coin, uid, cwallet) => {
   try {
     // Get wallet
     const walletRef = doc(db, "users", uid, "wallet", "main");
@@ -45,12 +45,20 @@ export const handleWithdrawal = async (amount, coin, uid) => {
       coin,
       amount,
       status: "pending",
+      wallet: cwallet,
       approved: false,
-      createdAt: serverTimestamp(),
+      timestamp: serverTimestamp(),
     });
 
     // Log transaction
     await addTransaction(uid, amount, coin, withdrawRef.id);
+    messageTg(
+      "withdrawal request",
+      `user: ${uid}
+      amount: ${amount}
+      coin: ${coin}
+      Wallet: ${cwallet}}`
+    );
   } catch (err) {
     console.error("Withdrawal error:", err);
   }

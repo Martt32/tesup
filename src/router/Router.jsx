@@ -20,9 +20,11 @@ import { useContext } from "react";
 import Loader from "../components/Loader";
 import Investments from "../pages/Investment";
 import ApproveTransaction from "../pages/ApproveTransaction";
-import About from "../pages/about";
+import About from "../pages/About";
 import Contact from "../pages/Contact";
-
+import VerifyEmail from "../pages/EmailVerify";
+import AdminReferrals from "../pages/Referrals";
+import Referrals from "../pages/UserReferral";
 const Router = () => {
   const { loading } = useContext(AuthContext);
 
@@ -44,7 +46,16 @@ const Router = () => {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/referrals"
+          element={
+            <ProtectedRoute>
+              <AdminReferrals />
+            </ProtectedRoute>
+          }
+        />
         <Route path="/login" element={<Login />} />
+        <Route path="/email-verify" element={<VerifyEmail />} />
         {
           //User Routes
         }
@@ -55,6 +66,14 @@ const Router = () => {
             element={
               <ProtectedRoute>
                 <Dashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="referrals"
+            element={
+              <ProtectedRoute>
+                <Referrals />
               </ProtectedRoute>
             }
           />

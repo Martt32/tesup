@@ -54,6 +54,161 @@ export const sendEmail = onRequest(
   }
 );
 
+export const sendEmailVerification = https.onCall(
+  { secrets: [SMTP_USER, SMTP_PASS] },
+  async (request) => {
+
+  if (!request.auth) {
+    throw new https.HttpsError("unauthenticated", "Login required");
+  }
+
+  const uid = request.auth.uid;
+  const email = request.auth.token.email;
+
+  if (!email) {
+    throw new https.HttpsError("invalid-argument", "Email missing");
+  }
+
+  const code = Math.floor(100000 + Math.random() * 900000).toString();
+
+  const now = admin.firestore.Timestamp.now();
+  const expiresAt = admin.firestore.Timestamp.fromMillis(
+    now.toMillis() + 5 * 60 * 1000 // 5 minutes
+  );
+
+  const verificationRef = db.doc(`emailVerifications/${uid}`);
+
+  await verificationRef.set({
+    email,
+    code,
+    createdAt: now,
+    expiresAt,
+  });
+  const transporter = nodemailer.createTransport({
+    host: "smtp.hostinger.com",
+    port: 465,
+    secure: true,
+    auth: {
+      user: SMTP_USER.value(),
+      pass: SMTP_PASS.value(),
+    },
+  });
+  await transporter.sendMail({
+    from: `"TesUP" <${SMTP_USER.value()}>`,
+    to: email,
+    subject: "Verify your email",
+    html: `<div style="
+    font-family: Arial, sans-serif;
+    max-width: 600px;
+    margin: auto;
+    padding: 20px;
+    border-radius: 10px;
+    margin: 0;
+  background:
+    linear-gradient(to right, rgba(168, 85, 247, 0.1) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(168, 85, 247, 0.1) 1px, transparent 1px),
+    #0f0c29;
+  background-size: 40px 40px;
+    color: #fff;
+    line-height: 1.6;
+  ">
+    <div style="text-align: center; margin-bottom: 20px;">
+      <h1 style="font-size: 28px; margin: 0;">Welcome to TesUP, 🎉</h1>
+      <p style="font-size: 16px; margin-top: 5px;">We’re excited to have you on board.</p>
+    </div>
+  
+    <div style="
+      background: rgba(255, 255, 255, 0.15);
+      padding: 15px;
+      border-radius: 8px;
+      text-align: center;
+      margin: 20px 0;
+    ">
+      <p style="margin: 0; font-size: 16px;">Your verification code is:</p>
+      <h2 style="
+        font-size: 32px;
+        letter-spacing: 4px;
+        margin: 10px 0 0 0;
+        color: #ffe6ff;
+      ">${code}</h2>
+    </div>
+  
+    <p style="text-align: center; font-size: 14px; margin-top: 10px;">
+      Enter this code in the app to verify your account and get started.
+    </p>
+  
+    <div style="text-align: center; margin-top: 30px;">
+      <a href="https://tesup.io" style="
+        display: inline-block;
+        padding: 12px 25px;
+        background: #fff;
+        color: #0f0c29;
+        text-decoration: none;
+        font-weight: bold;
+        border-radius: 5px;
+      ">Go to Dashboard</a>
+    </div>
+  
+    <p style="font-size: 12px; text-align: center; margin-top: 30px; opacity: 0.8;">
+      If you did not create an account, please ignore this email.
+    </p>
+  </div>
+  `
+
+  });
+
+  return { success: true };
+});
+
+export const verifyEmailCode = https.onCall(async (request) => {
+
+  if (!request.auth) {
+    throw new https.HttpsError("unauthenticated", "Login required");
+  }
+
+  const uid = request.auth.uid;
+  const { code } = request.data;
+
+  if (!code) {
+    throw new https.HttpsError("invalid-argument", "Code required");
+  }
+
+  const verificationRef = db.doc(`emailVerifications/${uid}`);
+  const snap = await verificationRef.get();
+
+  if (!snap.exists) {
+    throw new https.HttpsError("not-found", "Verification expired");
+  }
+
+  const data = snap.data();
+
+  const now = admin.firestore.Timestamp.now();
+
+  if (now.toMillis() > data.expiresAt.toMillis()) {
+    await verificationRef.delete();
+    throw new https.HttpsError("deadline-exceeded", "Code expired");
+  }
+
+  if (data.code !== code) {
+    throw new https.HttpsError("permission-denied", "Invalid code");
+  }
+
+  const userRef = db.doc(`users/${uid}`);
+
+  const batch = db.batch();
+
+  batch.update(userRef, {
+    verified: true,
+    updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+  });
+
+  batch.delete(verificationRef);
+
+  await batch.commit();
+
+  return { success: true };
+});
+
 export const createReferralCode = onDocumentCreated(
   "users/{userId}",
   async (event) => {
@@ -90,8 +245,6 @@ export const onUserCreated = onDocumentCreated("users/{userId}", async (event) =
   const newUser = event.data?.data();
 
   if (!newUser) return;
-
-  // only run when profile is completed
   if (!newUser.profileCompleted) return;
 
   const SIGNUP_BONUS = 20;
@@ -102,9 +255,10 @@ export const onUserCreated = onDocumentCreated("users/{userId}", async (event) =
   const batch = db.batch();
 
   const userRef = db.doc(`users/${userId}`);
+  const walletRef = db.doc(`users/${userId}/wallet/main`);
   const referralCodeRef = db.doc(`referralCodes/${referralCode}`);
 
-  // 1️⃣ attach referral code to user profile
+  // 1️⃣ attach referral code to user
   batch.set(
     userRef,
     {
@@ -114,29 +268,28 @@ export const onUserCreated = onDocumentCreated("users/{userId}", async (event) =
     { merge: true }
   );
 
-  // 2️⃣ create referral lookup document
+  // 2️⃣ create referral lookup
   batch.set(referralCodeRef, {
     uid: userId,
     createdAt: admin.firestore.FieldValue.serverTimestamp(),
   });
 
-  // 3️⃣ handle inviter reward
+  // 3️⃣ if user was referred, give THEM $20
   if (newUser.referredBy) {
 
-    const inviterId = newUser.referredBy;
-
-    const inviterWalletRef = db.doc(`users/${inviterId}/wallet/main`);
-    const inviterReferralRef = db.doc(`users/${inviterId}/referrals/${userId}`);
-
-    // credit inviter wallet
+    // give signup bonus to the NEW user
     batch.set(
-      inviterWalletRef,
+      walletRef,
       {
         availableBalance: admin.firestore.FieldValue.increment(SIGNUP_BONUS),
         updatedAt: admin.firestore.FieldValue.serverTimestamp(),
       },
       { merge: true }
     );
+
+    const inviterId = newUser.referredBy;
+
+    const inviterReferralRef = db.doc(`users/${inviterId}/referrals/${userId}`);
 
     // create referral tracking record
     batch.set(inviterReferralRef, {
@@ -145,14 +298,14 @@ export const onUserCreated = onDocumentCreated("users/{userId}", async (event) =
       email: newUser.email || null,
       joinedAt: admin.firestore.Timestamp.now(),
       totalInvested: 0,
-      bonusEarned: SIGNUP_BONUS,
+      bonusEarned: 0, // earnings will come from investments
     });
 
   }
 
   await batch.commit();
 
-  logger.info(`User ${userId} processed with referral code ${referralCode}`);
+  logger.info(`User ${userId} created with referral code ${referralCode}`);
 });
 
 
@@ -177,7 +330,7 @@ export const createInvestment = https.onCall(async (request) => {
       throw new https.HttpsError("invalid-argument", "Invalid amount");
     }
 
-    // 1. Fetch plan
+    // 1️⃣ Fetch plan
     const planSnap = await db.collection("plans").doc(planId).get();
     if (!planSnap.exists) {
       throw new https.HttpsError("not-found", "Plan not found");
@@ -194,78 +347,104 @@ export const createInvestment = https.onCall(async (request) => {
       );
     }
 
-    // 2. Fetch user to check referredBy
-    const userSnap = await db.collection("users").doc(userId).get();
-    const userData = userSnap.data();
-    const inviterId = userData?.referredBy ?? null;
-
-    // 3. Create investment doc
+    const userRef = db.doc(`users/${userId}`);
+    const walletRef = db.doc(`users/${userId}/wallet/main`);
     const investRef = db.collection("users").doc(userId).collection("investments").doc();
+
     const now = admin.firestore.Timestamp.now();
 
-    await investRef.set({
-      planId,
-      amount: investAmount,
-      status: "active",
-      createdAt: now,
-      lastProfitAt: now,
-      userId,
-      endsAt: admin.firestore.Timestamp.fromMillis(
-        now.toMillis() + plan.investPeriodDays * 24 * 60 * 60 * 1000
-      ),
-    });
-
-    // 4. Deduct from investor wallet (transaction for safety)
-    const walletRef = db.doc(`users/${userId}/wallet/main`);
     await db.runTransaction(async (tx) => {
-      const walletSnap = await tx.get(walletRef);
 
+      // 2️⃣ Fetch user
+      const userSnap = await tx.get(userRef);
+      if (!userSnap.exists) {
+        throw new Error("User not found");
+      }
+
+      const userData = userSnap.data();
+      const inviterId = userData?.referredBy ?? null;
+
+      // 3️⃣ Fetch wallet
+      const walletSnap = await tx.get(walletRef);
       if (!walletSnap.exists) {
         throw new Error("Wallet not found");
       }
 
       const wallet = walletSnap.data();
+
       if ((wallet.availableBalance || 0) < investAmount) {
         throw new Error("Insufficient balance");
       }
 
+      // 4️⃣ Deduct investor balance
       tx.update(walletRef, {
         totalInvested: (wallet.totalInvested || 0) + investAmount,
         availableBalance: wallet.availableBalance - investAmount,
         updatedAt: admin.firestore.FieldValue.serverTimestamp(),
       });
-    });
 
-    // 5. Pay referral bonus if user was referred
-    if (inviterId) {
-      const REFERRAL_BONUS_RATE = 0.05;
-      const referralBonus = investAmount * REFERRAL_BONUS_RATE;
-
-      const batch = db.batch();
-
-      // Credit inviter's wallet
-      const inviterWalletRef = db.doc(`users/${inviterId}/wallet/main`);
-      batch.set(inviterWalletRef, {
-        availableBalance: admin.firestore.FieldValue.increment(referralBonus),
-        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-      }, { merge: true });
-
-      // Update the referral record (totalInvested + bonusEarned)
-      const referralRef = db.doc(`users/${inviterId}/referrals/${userId}`);
-      batch.update(referralRef, {
-        totalInvested: admin.firestore.FieldValue.increment(investAmount),
-        bonusEarned: admin.firestore.FieldValue.increment(referralBonus),
+      // 5️⃣ Create investment
+      tx.set(investRef, {
+        planId,
+        amount: investAmount,
+        status: "active",
+        createdAt: now,
+        lastProfitAt: now,
+        userId,
+        endsAt: admin.firestore.Timestamp.fromMillis(
+          now.toMillis() + plan.investPeriodDays * 24 * 60 * 60 * 1000
+        ),
       });
 
-      await batch.commit();
-      logger.info(`Referral bonus: ${inviterId} earned $${referralBonus} from ${userId}'s investment`);
-    }
+      // 6️⃣ Handle referral bonus
+      if (inviterId) {
+        const REFERRAL_RATE = 0.05;
+        const referralBonus = investAmount * REFERRAL_RATE;
 
-    return { success: true, investmentId: investRef.id };
+        const inviterWalletRef = db.doc(`users/${inviterId}/wallet/main`);
+        const referralRef = db.doc(`users/${inviterId}/referrals/${userId}`);
+
+        // credit inviter wallet
+        tx.set(
+          inviterWalletRef,
+          {
+            availableBalance: admin.firestore.FieldValue.increment(referralBonus),
+            updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+          },
+          { merge: true }
+        );
+
+        // update referral stats
+        tx.set(
+          referralRef,
+          {
+            userId,
+            totalInvested: admin.firestore.FieldValue.increment(investAmount),
+            bonusEarned: admin.firestore.FieldValue.increment(referralBonus),
+          },
+          { merge: true }
+        );
+
+        logger.info(
+          `Referral bonus: ${inviterId} earned $${referralBonus} from ${userId}`
+        );
+      }
+    });
+
+    return {
+      success: true,
+      investmentId: investRef.id,
+    };
+
   } catch (err) {
     logger.error("createInvestment error:", err);
+
     if (err instanceof https.HttpsError) throw err;
-    throw new https.HttpsError("internal", err.message || "Internal server error");
+
+    throw new https.HttpsError(
+      "internal",
+      err.message || "Internal server error"
+    );
   }
 });
 

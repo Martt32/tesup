@@ -2,9 +2,10 @@ import { useContext, useState } from "react";
 import { AuthContext } from "../context/AuthContext";
 import { Check, X } from "lucide-react";
 import { Link } from "react-router-dom";
+import { usePlans } from "../hooks";
 
 export default function Plans() {
-  const { plans } = useContext(AuthContext);
+  const plans = usePlans();
 
   return (
     <section className="py-24 relative">

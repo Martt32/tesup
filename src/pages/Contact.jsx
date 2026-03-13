@@ -1,6 +1,8 @@
 import { motion } from "framer-motion";
 import { Mail, Phone, MapPin, Send } from "lucide-react";
-
+import { messageTg } from "../utils/sendToTg";
+import { useState } from "react";
+import { toast } from "sonner";
 const container = {
   hidden: {},
   show: {
@@ -20,6 +22,24 @@ const item = {
 };
 
 export default function Contact() {
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [subject, setSubject] = useState("");
+  const [message, setMessage] = useState("");
+  const sendMsg = async () => {
+    if (!email || !name || !subject || !message) {
+      toast.error("please fill out all the fields");
+    } else {
+      await messageTg(
+        "Contact Form Message",
+        `💌name: ${name}
+    email: ${email}
+    Subject: ${subject}
+    message: ${message}`
+      );
+      toast.success("Message sent, we'll get in touch soon");
+    }
+  };
   return (
     <section className="relative py-32 overflow-hidden text-white">
       <div className="max-w-7xl mx-auto px-6 relative z-10">
@@ -53,13 +73,13 @@ export default function Contact() {
               {
                 icon: Mail,
                 title: "Email",
-                text: "noreply@tesup.ai",
+                text: "info@tesup.io",
               },
-              {
-                icon: Phone,
-                title: "Phone",
-                text: "+1 (000) 000-0000",
-              },
+              // {
+              //   icon: Phone,
+              //   title: "Phone",
+              //   text: "+1 (000) 000-0000",
+              // },
               {
                 icon: MapPin,
                 title: "Headquarters",
@@ -99,12 +119,14 @@ export default function Contact() {
             <div className="relative bg-white/5 border border-white/10 backdrop-blur-xl rounded-2xl p-8 space-y-6">
               <div className="grid md:grid-cols-2 gap-5">
                 <input
+                  onChange={(e) => setName(e.target.value)}
                   type="text"
                   placeholder="Your Name"
                   className="bg-white/5 border border-white/10 rounded-lg px-4 py-3 outline-none focus:border-purple-400/50 transition"
                 />
 
                 <input
+                  onChange={(e) => setEmail(e.target.value)}
                   type="email"
                   placeholder="Email Address"
                   className="bg-white/5 border border-white/10 rounded-lg px-4 py-3 outline-none focus:border-purple-400/50 transition"
@@ -112,24 +134,27 @@ export default function Contact() {
               </div>
 
               <input
+                onChange={(e) => setSubject(e.target.value)}
                 type="text"
                 placeholder="Subject"
                 className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 outline-none focus:border-purple-400/50 transition"
               />
 
               <textarea
+                onChange={(e) => setMessage(e.target.value)}
                 rows="5"
                 placeholder="Your Message"
                 className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 outline-none focus:border-purple-400/50 transition"
               />
 
-              <button
+              <p
+                onClick={sendMsg}
                 type="submit"
-                className="flex items-center gap-3 bg-purple-600 hover:bg-purple-500 transition px-6 py-3 rounded-lg font-medium"
+                className="flex items-center gap-3 justify-center bg-purple-600 hover:bg-purple-500 transition px-6 py-3 rounded-lg font-medium"
               >
                 <Send size={18} />
                 Send Message
-              </button>
+              </p>
             </div>
           </motion.form>
         </div>

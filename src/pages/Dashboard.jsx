@@ -1,10 +1,15 @@
 import { Wallet, TrendingUp, DollarSign, ArrowDownUp } from "lucide-react";
 import { useEffect, useContext } from "react";
-import { AuthContext } from "../context/AuthContext";
+// import { AuthContext } from "../context/AuthContext";
 import { Users } from "lucide-react";
-
+import { useProfile, useWallet, useTransactions, useReferrals } from "../hooks";
+import { Link } from "react-router-dom";
 export default function Dashboard() {
-  const { profile, wallet, transactions, referrals } = useContext(AuthContext);
+  const profile = useProfile();
+  const wallet = useWallet();
+  const transactions = useTransactions();
+  const referrals = useReferrals();
+  // const { profile, wallet, transactions, referrals } = useContext(AuthContext);
   const totalBalance =
     wallet?.totalProfit + wallet?.availableBalance + wallet?.totalInvested;
 
@@ -36,12 +41,16 @@ export default function Dashboard() {
         </div>
 
         <div className="flex gap-3 mt-4 md:mt-0">
-          <button className="px-4 py-2 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 hover:scale-105 transition shadow-sm">
-            Deposit
-          </button>
-          <button className="px-4 py-2 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:scale-105 transition shadow-lg">
-            Invest Now
-          </button>
+          <Link to="/app/deposit">
+            <button className="px-4 py-2 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 hover:scale-105 transition shadow-sm">
+              Deposit
+            </button>
+          </Link>
+          <Link to="/app/plans">
+            <button className="px-4 py-2 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:scale-105 transition shadow-lg">
+              Invest Now
+            </button>
+          </Link>
         </div>
       </div>
 
@@ -86,12 +95,14 @@ export default function Dashboard() {
           icon={<DollarSign />}
           css={"available-balance"}
         />
-        <StatCard
-          title="Total Referrals"
-          value={referrals?.length || 0}
-          icon={<Users />}
-          css={"total-referrals"}
-        />
+        <Link to="referrals">
+          <StatCard
+            title="Total Referrals"
+            value={referrals?.length || 0}
+            icon={<Users />}
+            css={"total-referrals"}
+          />
+        </Link>
       </div>
 
       {/* ================= TRANSACTIONS ================= */}
@@ -109,7 +120,7 @@ export default function Dashboard() {
             </thead>
             <tbody>
               {transactions?.length > 0 ? (
-                transactions.map((tx, i) => (
+                transactions.slice(-3).map((tx, i) => (
                   <tr
                     key={i}
                     className="border-b border-white/5 hover:bg-purple-600/10 transition"

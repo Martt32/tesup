@@ -1,12 +1,13 @@
-import { useContext, useState } from "react";
+import { useContext, useState, useEffect } from "react";
 import { Upload, DollarSign } from "lucide-react";
 import { AuthContext } from "../context/AuthContext";
 import CoinSelector from "../components/CoinSelector";
 import { handleDeposit } from "../utils/handleDeposit";
-
+import { usePaymentMethods } from "../hooks";
 export default function Deposit() {
-  const { payment, user } = useContext(AuthContext);
-
+  const { user } = useContext(AuthContext);
+  const payment = usePaymentMethods();
+  console.log(payment);
   const [selected, setSelected] = useState(null);
   const [search, setSearch] = useState("");
   const [open, setOpen] = useState(false);
@@ -64,27 +65,10 @@ export default function Deposit() {
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400"
               />
             </div>
-            <p className="text-xs text-orange-400 mt-1">
-              Minimum 50 USD & Maximum 100,000 USD
-            </p>
+            <p className="text-xs text-orange-400 mt-1">Minimum 10 USD</p>
           </div>
 
           {/* Receipt Upload */}
-          <div>
-            <label className="text-sm text-gray-400">Upload Receipt</label>
-
-            <label
-              className="mt-3 flex flex-col items-center justify-center 
-              h-40 border border-dashed border-white/20 rounded-xl 
-              cursor-pointer hover:border-purple-500 transition"
-            >
-              <Upload className="text-purple-400 mb-2" />
-              <span className="text-sm text-gray-400">
-                Click to upload receipt
-              </span>
-              <input type="file" className="hidden" />
-            </label>
-          </div>
         </div>
 
         {/* ================= RIGHT: REVIEW ================= */}
@@ -108,11 +92,11 @@ export default function Deposit() {
       <div className="flex justify-end">
         <button
           onClick={deposit}
-          className="px-10 py-3 rounded-xl 
-          bg-gradient-to-r from-orange-500 to-red-500 
+          className="px-10 py-3 rounded-[5px] 
+          bg-gradient-to-r from-purple-500 to-purple-800 
           hover:opacity-90 transition font-semibold flex items-center gap-2"
         >
-          Proceed to Payment
+          I have made the payment
         </button>
       </div>
     </div>

@@ -8,7 +8,7 @@ import { LoadingContext } from "../context/Context";
 import { useNavigate } from "react-router-dom";
 import logo from "../assets/logo.png";
 import { messageTg } from "../utils/sendToTg";
-
+import { Link } from "react-router-dom";
 export default function Register() {
   const title = "New Registration";
   const { loading, setLoading } = useContext(LoadingContext);
@@ -124,6 +124,27 @@ export default function Register() {
             >
               Create Account
             </button>
+          </div>
+          <div className="mt-8 text-center text-sm text-gray-400">
+            <p>
+              Already have an account?{" "}
+              <Link to="/register">
+                <span className="text-yellow-400 hover:underline cursor-pointer">
+                  Signin
+                </span>
+              </Link>
+            </p>
+
+            <p className="mt-4 text-xs text-gray-500">
+              By clicking create account, you agree to our{" "}
+              <span className="text-yellow-400 hover:underline cursor-pointer">
+                Terms & Conditions
+              </span>{" "}
+              and{" "}
+              <span className="text-yellow-400 hover:underline cursor-pointer">
+                Privacy Policy
+              </span>
+            </p>
           </div>
         </div>
       </div>

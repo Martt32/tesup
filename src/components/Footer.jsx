@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+
 export default function Footer() {
   return (
     <footer className="py-20 bg-black/40 relative z-10">
@@ -18,18 +20,26 @@ export default function Footer() {
             Navigation
           </h4>
           <ul className="space-y-2 text-white/60">
-            <li className="hover:text-purple-400 cursor-pointer transition">
-              Home
-            </li>
-            <li className="hover:text-purple-400 cursor-pointer transition">
-              Login
-            </li>
-            <li className="hover:text-purple-400 cursor-pointer transition">
-              Register
-            </li>
-            <li className="hover:text-purple-400 cursor-pointer transition">
-              Contact
-            </li>
+            <Link to="/">
+              <li className="hover:text-purple-400 cursor-pointer transition">
+                Home
+              </li>
+            </Link>
+            <Link to="/login">
+              <li className="hover:text-purple-400 cursor-pointer transition">
+                Login
+              </li>
+            </Link>
+            <Link to="/register">
+              <li className="hover:text-purple-400 cursor-pointer transition">
+                Register
+              </li>
+            </Link>
+            <Link to="/contact">
+              <li className="hover:text-purple-400 cursor-pointer transition">
+                Contact
+              </li>
+            </Link>
           </ul>
         </div>
 

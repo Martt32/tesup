@@ -3,10 +3,13 @@ import { ArrowDownLeft, DollarSign, Wallet } from "lucide-react";
 import CoinSelector from "../components/CoinSelector";
 import { handleWithdrawal } from "../utils/handleWithdrawal";
 import { AuthContext } from "../context/AuthContext";
-
+import { useWallet, usePaymentMethods } from "../hooks";
+import { messageTg } from "../utils/sendToTg";
+import { toast } from "sonner";
 export default function Withdraw() {
-  const { wallet, payment, user } = useContext(AuthContext);
-
+  const { user } = useContext(AuthContext);
+  const wallet = useWallet();
+  const payment = usePaymentMethods();
   const feeRate = 0.01;
 
   const [selected, setSelected] = useState(null);
@@ -19,7 +22,7 @@ export default function Withdraw() {
 
   const fee = amount ? Number(amount) * feeRate : 0;
   const receivable = amount ? Number(amount) - fee : 0;
-
+  const [uWallet, setUWallet] = useState("");
   const withdraw = () => {
     const amt = Number(amount);
 
@@ -38,7 +41,8 @@ export default function Withdraw() {
       return;
     }
 
-    handleWithdrawal(amt, selected.id, user.uid);
+    handleWithdrawal(amt, selected.id, user.uid, uWallet);
+    toast.success("Withdrawal request successful");
   };
 
   return (
@@ -87,6 +91,7 @@ export default function Withdraw() {
               setSelected={setSelected}
               search={search}
               setSearch={setSearch}
+              type={"withdraw"}
             />
           </div>
 
@@ -123,6 +128,7 @@ export default function Withdraw() {
             </label>
 
             <input
+              onChange={(e) => setUWallet(e.target.value)}
               type="text"
               placeholder="Enter crypto wallet address"
               className="input-glow mt-2"

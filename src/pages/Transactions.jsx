@@ -67,24 +67,24 @@ export default function Transactions() {
   };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 sm:space-y-8">
       {/* ===== Header ===== */}
       <div>
-        <h1 className="text-3xl font-bold">Transactions</h1>
-        <p className="text-gray-400 mt-2">
+        <h1 className="text-2xl sm:text-3xl font-bold">Transactions</h1>
+        <p className="text-gray-400 mt-1 sm:mt-2 text-sm sm:text-base">
           View and manage your transaction history
         </p>
       </div>
 
       {/* ===== Filters ===== */}
-      <div className="bg-white/5 border border-white/10 backdrop-blur-xl rounded-2xl p-6 space-y-5">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="bg-white/5 border border-white/10 backdrop-blur-xl rounded-2xl p-4 sm:p-6 space-y-4 sm:space-y-5">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4">
           {/* Search */}
-          <div className="relative">
+          <div className="relative w-full">
             <input
               type="text"
               placeholder="Search by title or ID..."
-              className="input-glow pr-10"
+              className="input-glow w-full pr-10"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
@@ -95,10 +95,10 @@ export default function Transactions() {
           </div>
 
           {/* Date */}
-          <div className="relative">
+          <div className="relative w-full">
             <input
               type="date"
-              className="input-glow pr-10"
+              className="input-glow w-full pr-10"
               value={dateFilter}
               onChange={(e) => setDateFilter(e.target.value)}
             />
@@ -110,7 +110,7 @@ export default function Transactions() {
 
           {/* Type */}
           <select
-            className="input-glow"
+            className="input-glow w-full"
             value={typeFilter}
             onChange={(e) => setTypeFilter(e.target.value)}
           >
@@ -125,23 +125,27 @@ export default function Transactions() {
       {/* ===== Table ===== */}
       <div className="bg-white/5 border border-white/10 backdrop-blur-xl rounded-2xl overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-sm">
+          <table className="w-full text-xs sm:text-sm">
             <thead className="bg-white/5 text-gray-400">
               <tr>
-                <th className="text-left px-6 py-4">Description</th>
-                <th className="text-left px-6 py-4">Transaction ID</th>
-                <th className="text-left px-6 py-4">Type</th>
-                <th className="text-left px-6 py-4">Amount</th>
-                <th className="text-left px-6 py-4">Charge</th>
-                <th className="text-left px-6 py-4">Status</th>
-                <th className="text-left px-6 py-4">Gateway</th>
+                <th className="text-left px-4 sm:px-6 py-2 sm:py-4">
+                  Description
+                </th>
+                <th className="text-left px-4 sm:px-6 py-2 sm:py-4">
+                  Transaction ID
+                </th>
+                <th className="text-left px-4 sm:px-6 py-2 sm:py-4">Type</th>
+                <th className="text-left px-4 sm:px-6 py-2 sm:py-4">Amount</th>
+                <th className="text-left px-4 sm:px-6 py-2 sm:py-4">Charge</th>
+                <th className="text-left px-4 sm:px-6 py-2 sm:py-4">Status</th>
+                <th className="text-left px-4 sm:px-6 py-2 sm:py-4">Gateway</th>
               </tr>
             </thead>
 
             <tbody>
               {filteredTransactions.length === 0 ? (
                 <tr className="border-t border-white/10 text-gray-300">
-                  <td className="px-6 py-5" colSpan={7}>
+                  <td className="px-4 sm:px-6 py-3 sm:py-5" colSpan={7}>
                     No transactions found
                   </td>
                 </tr>
@@ -151,25 +155,33 @@ export default function Transactions() {
                     key={tx.id}
                     className="border-t border-white/10 text-gray-300"
                   >
-                    <td className="px-6 py-5">{tx.type || "—"}</td>
-                    <td className="px-6 py-5">{tx.depositId || tx.id}</td>
-                    <td className="px-6 py-5 capitalize">{tx.type}</td>
-                    <td className="px-6 py-5">{formatAmount(tx.amount)}</td>
-                    <td className="px-6 py-5">
+                    <td className="px-4 sm:px-6 py-2 sm:py-5">
+                      {tx.type || "—"}
+                    </td>
+                    <td className="px-4 sm:px-6 py-2 sm:py-5">
+                      {tx.depositId || tx.id}
+                    </td>
+                    <td className="px-4 sm:px-6 py-2 sm:py-5 capitalize">
+                      {tx.type}
+                    </td>
+                    <td className="px-4 sm:px-6 py-2 sm:py-5">
+                      {formatAmount(tx.amount)}
+                    </td>
+                    <td className="px-4 sm:px-6 py-2 sm:py-5">
                       {formatAmount(
                         tx.type === "withdrawal" ? tx.amount * 0.01 : 0
                       )}
                     </td>
-                    <td className="px-6 py-5">
+                    <td className="px-4 sm:px-6 py-2 sm:py-5">
                       <span
-                        className={`px-3 py-1 rounded-full text-xs ${formatStatus(
+                        className={`px-2 sm:px-3 py-1 rounded-full text-xs ${formatStatus(
                           tx.status
                         )}`}
                       >
                         {tx.status || "pending"}
                       </span>
                     </td>
-                    <td className="px-6 py-5">{tx.coin}</td>
+                    <td className="px-4 sm:px-6 py-2 sm:py-5">{tx.coin}</td>
                   </tr>
                 ))
               )}

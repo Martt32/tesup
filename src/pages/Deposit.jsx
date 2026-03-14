@@ -45,6 +45,7 @@ export default function Deposit() {
               setSelected={setSelected}
               search={search}
               setSearch={setSearch}
+              type={"deposit"}
             />
             <p className="text-xs text-orange-400 mt-1">Charge: 0.5%</p>
           </div>
@@ -68,7 +69,17 @@ export default function Deposit() {
             <p className="text-xs text-orange-400 mt-1">Minimum 10 USD</p>
           </div>
 
-          {/* Receipt Upload */}
+          {/* QR code */}
+<div className="p-2 rounded-[5px] bg-white/4">
+  {selected?.url && (
+    <img
+      className="w-40 h-40 object-contain"
+      src={selected.url}
+      alt="Wallet QR Code"
+    />
+  )}
+</div>
+      
         </div>
 
         {/* ================= RIGHT: REVIEW ================= */}

@@ -6,7 +6,7 @@ import { Mail, RefreshCcw } from "lucide-react";
 import Lottie from "lottie-react";
 import successAnimation from "../assets/Success.json"; // adjust path
 import { useNavigate } from "react-router-dom";
-
+import { useProfile } from "../hooks";
 export default function VerifyEmail() {
   const [code, setCode] = useState(["", "", "", "", "", ""]);
   const inputs = useRef([]);
@@ -26,6 +26,7 @@ export default function VerifyEmail() {
 
   const sentRef = useRef(false);
 
+  const profile = useProfile();
   useEffect(() => {
     const sendCode = async () => {
       if (sentRef.current) return;
@@ -41,8 +42,8 @@ export default function VerifyEmail() {
         setLoading(false);
       }
     };
-
-    sendCode();
+    if (profile.profile.verified) navigate("/app/dashboard");
+    if (!profile.profile.verified) sendCode();
   }, []);
   // countdown timer
   useEffect(() => {

@@ -31,12 +31,15 @@ const CoinSelector = ({
   };
 
   return (
-    <div className="relative">
+    <div className="relative mt-3">
       {/* SELECT BUTTON */}
       <div
         onClick={() => setOpen(!open)}
-        className="input-glow cursor-pointer flex justify-between items-center"
+        className="input-glow cursor-pointer flex items-center justify-between"
       >
+        {selected?.icon && (
+          <img className="w-6 h-6" src={selected?.icon} alt="coin icon" />
+        )}
         <span>{selected?.id || "Select Crypto"}</span>
         <span className="text-gray-400">▾</span>
       </div>

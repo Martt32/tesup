@@ -5,7 +5,8 @@ import { Users } from "lucide-react";
 import { useProfile, useWallet, useTransactions, useReferrals } from "../hooks";
 import { Link } from "react-router-dom";
 export default function Dashboard() {
-  const profile = useProfile();
+  const pf = useProfile();
+  const profile = pf.profile;
   const wallet = useWallet();
   const transactions = useTransactions();
   const referrals = useReferrals();
@@ -58,44 +59,60 @@ export default function Dashboard() {
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 mb-12">
         <StatCard
           title="Total Balance"
-          value={`$${totalBalance.toLocaleString("en-us", {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2,
-          })}`}
+          value={
+            wallet
+              ? `$${totalBalance.toLocaleString("en-us", {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                })}`
+              : "Loading"
+          }
           icon={<Wallet />}
           css={"total-balance"}
         />
 
         <StatCard
           title="Total Invested"
-          value={`$${wallet?.totalInvested.toLocaleString("en-us", {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2,
-          })}`}
+          value={
+            wallet
+              ? `$${wallet?.totalInvested.toLocaleString("en-us", {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                })}`
+              : "Loading"
+          }
           icon={<ArrowDownUp />}
           css={"total-invested"}
         />
 
         <StatCard
           title="Total Profit"
-          value={`$${wallet?.totalProfit.toLocaleString("en-us", {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2,
-          })}`}
+          value={
+            wallet
+              ? `$${wallet?.totalProfit.toLocaleString("en-us", {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                })}`
+              : "Loading"
+          }
           icon={<TrendingUp />}
           css={"total-profit"}
         />
 
         <StatCard
           title="Available Balance"
-          value={`$${wallet?.availableBalance.toLocaleString("en-us", {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2,
-          })}`}
+          value={
+            wallet
+              ? `$${wallet?.availableBalance.toLocaleString("en-us", {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                })}`
+              : "Loading"
+          }
           icon={<DollarSign />}
           css={"available-balance"}
         />
-        <Link to="referrals">
+        <Link to="/app/referrals">
           <StatCard
             title="Total Referrals"
             value={referrals?.length || 0}
@@ -106,120 +123,163 @@ export default function Dashboard() {
       </div>
 
       {/* ================= TRANSACTIONS ================= */}
-      <div className="glass-card border border-white/10 rounded-2xl p-6 backdrop-blur-xl">
-        <h2 className="text-xl font-semibold mb-4">Recent Transactions</h2>
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead className="text-gray-400 border-b border-white/10">
-              <tr>
-                <th className="text-left py-3">Date</th>
-                <th className="text-left py-3">Type</th>
-                <th className="text-left py-3">Amount</th>
-                <th className="text-left py-3">Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {transactions?.length > 0 ? (
-                transactions.slice(-3).map((tx, i) => (
-                  <tr
-                    key={i}
-                    className="border-b border-white/5 hover:bg-purple-600/10 transition"
-                  >
-                    <td className="py-4 text-gray-300">
-                      {tx.timestamp.toDate().toLocaleString()}
-                    </td>
-                    <td className="py-4">{tx.type}</td>
-                    <td
-                      className={`py-4 rounded-full text-xs ${
-                        tx.type === "deposit"
-                          ? " text-green-400"
-                          : tx.status === "withdraw"
-                          ? " text-yellow-400"
-                          : " text-red-400"
-                      }`}
+      <div className="hidden md:block w-full">
+        <div className=" glass-card border border-white/10 rounded-2xl p-6 backdrop-blur-xl">
+          <h2 className="text-xl font-semibold mb-4">Recent Transactions</h2>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead className="text-gray-400 border-b border-white/10">
+                <tr>
+                  <th className="text-left py-3">Date</th>
+                  <th className="text-left py-3">Type</th>
+                  <th className="text-left py-3">Amount</th>
+                  <th className="text-left py-3">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {transactions?.length > 0 ? (
+                  transactions.slice(-3).map((tx, i) => (
+                    <tr
+                      key={i}
+                      className="border-b border-white/5 hover:bg-purple-600/10 transition"
                     >
-                      $
-                      {tx.amount.toLocaleString("en-us", {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2,
-                      })}
-                    </td>
-                    <td className="py-4">
-                      <span
-                        className={`px-3 py-1 rounded-full text-xs ${
-                          tx.status === "success"
-                            ? "bg-green-500/20 text-green-400"
-                            : tx.status === "pending"
-                            ? "bg-yellow-500/20 text-yellow-400"
-                            : "bg-red-500/20 text-red-400"
+                      <td className="py-4 text-gray-300">
+                        {tx.timestamp.toDate().toLocaleString()}
+                      </td>
+                      <td className="py-4">{tx.type}</td>
+                      <td
+                        className={`py-4 rounded-full text-xs ${
+                          tx.type === "deposit"
+                            ? " text-green-400"
+                            : tx.status === "withdraw"
+                            ? " text-yellow-400"
+                            : " text-red-400"
                         }`}
                       >
-                        {tx.status}
+                        $
+                        {tx.amount.toLocaleString("en-us", {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2,
+                        })}
+                      </td>
+                      <td className="py-4">
+                        <span
+                          className={`px-3 py-1 rounded-full text-xs ${
+                            tx.status === "success"
+                              ? "bg-green-500/20 text-green-400"
+                              : tx.status === "pending"
+                              ? "bg-yellow-500/20 text-yellow-400"
+                              : "bg-red-500/20 text-red-400"
+                          }`}
+                        >
+                          {tx.status}
+                        </span>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr className="border-b border-white/5">
+                    <td className="py-4 text-gray-300">—</td>
+                    <td className="py-4">—</td>
+                    <td className="py-4">$0.00</td>
+                    <td className="py-4">
+                      <span className="px-3 py-1 rounded-full bg-white/10 text-gray-400 text-xs">
+                        No Data
                       </span>
                     </td>
                   </tr>
-                ))
-              ) : (
-                <tr className="border-b border-white/5">
-                  <td className="py-4 text-gray-300">—</td>
-                  <td className="py-4">—</td>
-                  <td className="py-4">$0.00</td>
-                  <td className="py-4">
-                    <span className="px-3 py-1 rounded-full bg-white/10 text-gray-400 text-xs">
-                      No Data
-                    </span>
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
       {
         //referrals
       }
       {/* ================= REFERRALS ================= */}
-      <div className="glass-card border border-white/10 rounded-2xl p-6 backdrop-blur-xl mt-10">
-        <h2 className="text-xl font-semibold mb-4">Your Referrals</h2>
+      <div className="glass-card border border-white/10 rounded-2xl p-4 sm:p-6 backdrop-blur-xl mt-10">
+        <h2 className="text-lg sm:text-xl font-semibold mb-4">
+          Your Referrals
+        </h2>
 
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead className="text-gray-400 border-b border-white/10">
-              <tr>
-                <th className="text-left py-3">Username</th>
-                <th className="text-left py-3">Email</th>
-                <th className="text-left py-3">Joined</th>
-                <th className="text-left py-3">Bonus Earned</th>
-              </tr>
-            </thead>
+        {referrals?.length > 0 ? (
+          <>
+            {/* Mobile cards */}
+            <div className="space-y-3 md:hidden">
+              {referrals.map((ref) => (
+                <div
+                  key={ref.id}
+                  className="rounded-xl border border-white/10 bg-white/5 p-4"
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <p className="text-sm text-gray-400">Username</p>
+                      <p className="font-medium">{ref.username || "—"}</p>
+                    </div>
 
-            <tbody>
-              {referrals?.length > 0 ? (
-                referrals.map((ref) => (
-                  <tr
-                    key={ref.id}
-                    className="border-b border-white/5 hover:bg-purple-600/10 transition"
-                  >
-                    <td className="py-4">{ref.username || "—"}</td>
-                    <td className="py-4 text-gray-300">{ref.email || "—"}</td>
-                    <td className="py-4 text-gray-300">
-                      {ref.joinedAt?.toDate().toLocaleDateString()}
-                    </td>
-                    <td className="py-4 text-green-400">
-                      ${ref.bonusEarned?.toFixed(2) || "0.00"}
-                    </td>
+                    <div className="text-right">
+                      <p className="text-sm text-gray-400">Bonus</p>
+                      <p className="text-green-400 font-medium">
+                        ${ref.bonusEarned?.toFixed(2) || "0.00"}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="mt-3 space-y-2">
+                    <div>
+                      <p className="text-sm text-gray-400">Email</p>
+                      <p className="text-sm text-gray-300 break-all">
+                        {ref.email || "—"}
+                      </p>
+                    </div>
+
+                    <div>
+                      <p className="text-sm text-gray-400">Joined</p>
+                      <p className="text-sm text-gray-300">
+                        {ref.joinedAt?.toDate().toLocaleDateString() || "—"}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Desktop table */}
+            <div className="hidden md:block overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead className="text-gray-400 border-b border-white/10">
+                  <tr>
+                    <th className="text-left py-3">Username</th>
+                    <th className="text-left py-3">Email</th>
+                    <th className="text-left py-3">Joined</th>
+                    <th className="text-left py-3">Bonus Earned</th>
                   </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan="4" className="py-4 text-gray-400 text-center">
-                    No referrals yet
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
+                </thead>
+
+                <tbody>
+                  {referrals.map((ref) => (
+                    <tr
+                      key={ref.id}
+                      className="border-b border-white/5 hover:bg-purple-600/10 transition"
+                    >
+                      <td className="py-4">{ref.username || "—"}</td>
+                      <td className="py-4 text-gray-300">{ref.email || "—"}</td>
+                      <td className="py-4 text-gray-300">
+                        {ref.joinedAt?.toDate().toLocaleDateString() || "—"}
+                      </td>
+                      <td className="py-4 text-green-400">
+                        ${ref.bonusEarned?.toFixed(2) || "0.00"}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
+        ) : (
+          <div className="py-6 text-gray-400 text-center">No referrals yet</div>
+        )}
       </div>
     </div>
   );

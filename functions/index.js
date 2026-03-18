@@ -484,7 +484,6 @@ export const autoProfit = onSchedule("every 5 minutes", async () => {
       const walletRef = db.doc(`users/${userDoc.id}/wallet/main`);
       batch.set(walletRef, {
         totalProfit: admin.firestore.FieldValue.increment(profit),
-        availableBalance: admin.firestore.FieldValue.increment(profit),
       }, { merge: true });
 
       batch.update(doc.ref, {

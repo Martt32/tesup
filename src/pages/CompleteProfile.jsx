@@ -19,6 +19,7 @@ import { messageTg } from "../utils/sendToTg";
 import { useProfile } from "../hooks";
 
 export default function CompleteProfile() {
+  const refCode = new URLSearchParams(window.location.search).get("ref");
   const { loading, setLoading } = useContext(LoadingContext);
   const navigate = useNavigate();
   const profile = useProfile();
@@ -104,12 +105,18 @@ export default function CompleteProfile() {
 
       messageTg(
         "Profile Completed",
-        `💌Email: ${user.email}
-        🌌Name: ${firstName} ${lastName}
-        ✔Phone: ${phone}
-        🌍Country: ${countryName}
-        😎Username: ${username}
-        ${referredBy ? `🎁Referred By: ${referredBy}` : ""}`
+        `🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦\n` +
+          `💌 *PROFILE COMPLETED*\n` +
+          `🟦────────────────🟦\n` +
+          `📧 Email: \`${user.email}\`\n` +
+          `🌌 Name: \`${firstName} ${lastName}\`\n` +
+          `✔ Phone: \`${phone}\`\n` +
+          `🌍 Country: \`${countryName}\`\n` +
+          `😎 Username: \`${username}\`\n` +
+          `${referredBy ? `🎁 Referred By: \`${referredBy}\`\n` : ""}` +
+          `🟦────────────────🟦\n` +
+          `⏰ Time: ${new Date().toLocaleString()}\n` +
+          `🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦`
       );
 
       toast.success("Profile completed!");
@@ -169,6 +176,7 @@ export default function CompleteProfile() {
 
             <input
               onChange={(e) => setReferralInput(e.target.value)}
+              value={refCode}
               className="input-glow"
               placeholder="Referral code (optional)"
             />

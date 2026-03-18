@@ -4,24 +4,45 @@ import { AuthContext } from "../context/AuthContext";
 import CoinSelector from "../components/CoinSelector";
 import { handleDeposit } from "../utils/handleDeposit";
 import { usePaymentMethods } from "../hooks";
+import WalletQR from "../components/WalletQR";
+import { toast } from "sonner";
+import Lottie from "lottie-react";
+import deposit_anime from "../assets/deposit_anime.json"; // adjust path
+import { useNavigate } from "react-router-dom";
+
 export default function Deposit() {
+  const navigate = useNavigate();
   const { user } = useContext(AuthContext);
   const payment = usePaymentMethods();
-  console.log(payment);
   const [selected, setSelected] = useState(null);
   const [search, setSearch] = useState("");
   const [open, setOpen] = useState(false);
+  const [sent, setSent] = useState(false);
 
   const [amount, setAmount] = useState();
-  const chargeRate = 0.005; // 0.5%
+  const chargeRate = 0.001; // 0.1%
 
   const charge = amount ? amount * chargeRate : 0;
   const total = amount ? Number(amount) + charge : 0;
   const deposit = () => {
+    if (!amount || !selected) return toast.error("Please complete the form");
     handleDeposit(amount, selected.id, user.uid);
+    setSent(true);
+    const timeout = setTimeout(() => {
+      navigate("/app/dashboard");
+    }, 3000);
+    return () => clearTimeout(timeout);
   };
+
   return (
     <div className="space-y-10">
+      {sent && (
+        <div className="fixed left-25 md:left-[45%] top-0 z-10 min-h-screen flex flex-col items-center justify-center ">
+          <div className="w-70">
+            <Lottie animationData={deposit_anime} loop={false} />
+          </div>
+        </div>
+      )}
       {/* ===== Header ===== */}
       <div>
         <h1 className="text-3xl font-bold">Deposit</h1>
@@ -47,9 +68,13 @@ export default function Deposit() {
               setSearch={setSearch}
               type={"deposit"}
             />
-            <p className="text-xs text-orange-400 mt-1">Charge: 0.5%</p>
+            <p className="text-xs text-orange-400 mt-1">Charge: 0.1%</p>
           </div>
-
+          <div className="p-6 rounded-[5px] justify-center items-center flex bg-white/4">
+            {selected?.wallet && (
+              <WalletQR walletAddress={selected.wallet} icon={selected.icon} />
+            )}
+          </div>
           {/* Amount */}
           <div>
             <label className="text-sm text-gray-400">Enter Amount</label>
@@ -70,20 +95,10 @@ export default function Deposit() {
           </div>
 
           {/* QR code */}
-<div className="p-2 rounded-[5px] bg-white/4">
-  {selected?.url && (
-    <img
-      className="w-40 h-40 object-contain"
-      src={selected.url}
-      alt="Wallet QR Code"
-    />
-  )}
-</div>
-      
         </div>
 
         {/* ================= RIGHT: REVIEW ================= */}
-        <div className="bg-white/5 border border-white/10 backdrop-blur-xl rounded-2xl p-6 space-y-6">
+        <div className="bg-white/5 max-h-100 border border-white/10 backdrop-blur-xl rounded-2xl p-6 space-y-6">
           <h2 className="text-xl font-semibold">Review Details</h2>
 
           <ReviewRow label="Amount" value={`$${amount || "0.00"}`} />
@@ -96,19 +111,18 @@ export default function Deposit() {
           <div className="border-t border-white/10 pt-4">
             <ReviewRow label="Total" value={`$${total.toFixed(2)}`} bold />
           </div>
-        </div>
-      </div>
-
-      {/* ===== CTA ===== */}
-      <div className="flex justify-end">
-        <button
-          onClick={deposit}
-          className="px-10 py-3 rounded-[5px] 
+          {/* ===== CTA ===== */}
+          <div className="flex justify-end">
+            <button
+              onClick={deposit}
+              className="px-10 py-3 rounded-[5px] 
           bg-gradient-to-r from-purple-500 to-purple-800 
           hover:opacity-90 transition font-semibold flex items-center gap-2"
-        >
-          I have made the payment
-        </button>
+            >
+              I have made the payment
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );

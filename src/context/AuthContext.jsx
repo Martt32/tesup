@@ -5,22 +5,21 @@ import { onAuthStateChanged } from "firebase/auth";
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState();
+  const [user, setUser] = useState(undefined);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, (firebaseUser) => {
       if (firebaseUser) {
-        // Load real user from Firebase
         setUser(firebaseUser);
       } else {
-        // Logged out
         setUser(null);
       }
+
+      setLoading(false);
     });
 
-    setLoading(false);
-    return unsub;
+    return () => unsub();
   }, []);
 
   return (

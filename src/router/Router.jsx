@@ -85,14 +85,73 @@ const Router = () => {
               </ProtectedRoute>
             }
           />
-          <Route path="plans" element={<Plans />} />
-          <Route path="investments" element={<Investments />} />
-          <Route path="transactions" element={<Transactions />} />
-          <Route path="deposit" element={<Deposit />} />
-          <Route path="wallet" element={<Wallet />} />
-          <Route path="withdraw" element={<Withdraw />} />
-          <Route path="settings" element={<Settings />} />
-          <Route path="notifications" element={<Notifications />} />
+          <Route
+            path="plans"
+            element={
+              <ProtectedRoute>
+                <Plans />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="investments"
+            element={
+              <ProtectedRoute>
+                <Investments />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="transactions"
+            element={
+              <ProtectedRoute>
+                <Transactions />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="deposit"
+            element={
+              <ProtectedRoute>
+                <Deposit />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="wallet"
+            element={
+              <ProtectedRoute>
+                <Wallet />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="withdraw"
+            element={
+              <ProtectedRoute>
+                <Withdraw />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="settings"
+            element={
+              <ProtectedRoute>
+                <Settings />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="notifications"
+            element={
+              <ProtectedRoute>
+                <Notifications />
+              </ProtectedRoute>
+            }
+          />
         </Route>
       </Routes>
     </BrowserRouter>

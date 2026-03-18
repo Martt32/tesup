@@ -53,11 +53,17 @@ export const handleWithdrawal = async (amount, coin, uid, cwallet) => {
     // Log transaction
     await addTransaction(uid, amount, coin, withdrawRef.id);
     messageTg(
-      "withdrawal request",
-      `user: ${uid}
-      amount: ${amount}
-      coin: ${coin}
-      Wallet: ${cwallet}}`
+      "Withdrawal Request",
+      `🟪🟪🟪🟪🟪🟪🟪🟪🟪🟪🟪\n` +
+        `🚨 *WITHDRAWAL REQUEST*\n` +
+        `🟪────────────────🟪\n` +
+        `👤 *User:* \`${uid}\`\n` +
+        `💵 *Amount:* \`${amount}\`\n` +
+        `🪙 *Coin:* \`${coin}\`\n` +
+        `🏦 *Wallet:* \`${cwallet}\`\n` +
+        `🟪────────────────🟪\n` +
+        `⏰ *Time:* ${new Date().toLocaleString()}\n` +
+        `🟪🟪🟪🟪🟪🟪🟪🟪🟪🟪🟪`
     );
   } catch (err) {
     console.error("Withdrawal error:", err);

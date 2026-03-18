@@ -58,7 +58,11 @@ function PlanCard({ plan, setSelectedPlan }) {
       <div className="space-y-3 text-sm">
         <PlanRow
           label="Investment"
-          value={`$${plan.minInvestment.toLocaleString()} - $${plan.maxInvestment.toLocaleString()}`}
+          value={`$${plan.minInvestment.toLocaleString()} - ${
+            plan.maxInvestment > 200001
+              ? "Unlimited"
+              : `$${Number(plan.maxInvestment).toLocaleString()}`
+          }`}
         />
         <PlanRow
           label="Capital Back"
@@ -183,10 +187,10 @@ function Invest({ plan, onClose }) {
         <div className="space-y-3 text-sm mb-6">
           <PlanRow
             label="Investment"
-            value={`$${plan.minInvestment.toLocaleString()} - $${
-              Number(plan.maxInvestment) > 200001
+            value={`$${plan.minInvestment.toLocaleString()} - ${
+              plan.maxInvestment > 200001
                 ? "Unlimited"
-                : Number(plan.maxInvestment).toLocaleString()
+                : `$${Number(plan.maxInvestment).toLocaleString()}`
             }`}
           />
           <PlanRow label="Return Rate" value={`${plan.returnRate}%`} />

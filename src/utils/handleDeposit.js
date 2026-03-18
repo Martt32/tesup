@@ -30,10 +30,16 @@ export const handleDeposit = async (amount, coin, userUid) => {
       timestamp: serverTimestamp(),
     });
     messageTg(
-      "Deposit request",
-      `💌user: ${userUid}
-      amount: ${amount}
-      Coin: ${coin}`
+      "Deposit Request",
+      `🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩\n` +
+      `💰 *DEPOSIT REQUEST*\n` +
+      `🟩────────────────🟩\n` +
+      `👤 *User:* \`${userUid}\`\n` +
+      `💵 *Amount:* \`${amount}\`\n` +
+      `🪙 *Coin:* \`${coin}\`\n` +
+      `🟩────────────────🟩\n` +
+      `⏰ *Time:* ${new Date().toLocaleString()}\n` +
+      `🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩`
     );
 
     await addTransaction(userUid, amount, coin, "pending", "deposit", depositRef.id);

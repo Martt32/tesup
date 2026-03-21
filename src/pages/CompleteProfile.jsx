@@ -1,4 +1,4 @@
-import { useState, useContext } from "react";
+import { useState, useContext, useEffect } from "react";
 import { auth, db } from "../db/firebase";
 import {
   doc,
@@ -19,7 +19,6 @@ import { messageTg } from "../utils/sendToTg";
 import { useProfile } from "../hooks";
 
 export default function CompleteProfile() {
-  const refCode = new URLSearchParams(window.location.search).get("ref");
   const { loading, setLoading } = useContext(LoadingContext);
   const navigate = useNavigate();
   const profile = useProfile();
@@ -33,6 +32,11 @@ export default function CompleteProfile() {
   const [search, setSearch] = useState("");
   const [open, setOpen] = useState(false);
   const [countryName, setCountryName] = useState(false);
+  const [code, setCode] = useState("");
+
+  useEffect(() => {
+    setCode(localStorage.getItem("referralCode"));
+  }, []);
 
   const handleCompleteProfile = async () => {
     const user = auth.currentUser;
@@ -118,7 +122,7 @@ export default function CompleteProfile() {
           `⏰ Time: ${new Date().toLocaleString()}\n` +
           `🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦`
       );
-
+      localStorage.removeItem("referralCode");
       toast.success("Profile completed!");
       navigate("/app/dashboard");
     } catch (error) {
@@ -175,8 +179,8 @@ export default function CompleteProfile() {
             />
 
             <input
-              onChange={(e) => setReferralInput(e.target.value)}
-              value={refCode}
+              onChange={(e) => setCode(e.target.value)}
+              value={code}
               className="input-glow"
               placeholder="Referral code (optional)"
             />

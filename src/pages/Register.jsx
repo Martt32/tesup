@@ -1,4 +1,4 @@
-import { useState, useContext } from "react";
+import { useState, useContext, useEffect } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import { signup } from "../utils/auth";
 import { toast } from "sonner";
@@ -50,7 +50,14 @@ export default function Register() {
       toast.error(getAuthErrorMessage(result.code));
     }
   };
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const ref = params.get("ref");
 
+    if (ref) {
+      localStorage.setItem("referralCode", ref);
+    }
+  }, []);
   return (
     <>
       {loading && <Loader />}
@@ -128,7 +135,7 @@ export default function Register() {
           <div className="mt-8 text-center text-sm text-gray-400">
             <p>
               Already have an account?{" "}
-              <Link to="/register">
+              <Link to="/login">
                 <span className="text-yellow-400 hover:underline cursor-pointer">
                   Signin
                 </span>

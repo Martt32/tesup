@@ -17,7 +17,7 @@ export default function Referrals() {
 
   const referralCode = user?.uid.slice(0, 8).toUpperCase() || "";
   const referralLink = referralCode
-    ? `${window.location.origin}/complete-profile?ref=${referralCode}`
+    ? `${window.location.origin}/register?ref=${referralCode}`
     : "";
 
   useEffect(() => {

@@ -14,12 +14,17 @@ const CountrySelector = ({
     fetch("https://ipapi.co/json/")
       .then((res) => res.json())
       .then((data) => {
-        const found = countryList.find((c) => c.code === data.country_code);
-        setSelected(found || countryList.find((c) => c.code === "US"));
-        setCountryName(selected.name);
+        const found =
+          countryList.find((c) => c.code === data.country_code) ||
+          countryList.find((c) => c.code === "US");
+
+        setSelected(found);
+        setCountryName(found.name);
       })
       .catch(() => {
-        setSelected(countryList.find((c) => c.code === "US"));
+        const fallback = countryList.find((c) => c.code === "US");
+        setSelected(fallback);
+        setCountryName(fallback.name);
       });
   }, []);
 

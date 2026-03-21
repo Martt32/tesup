@@ -138,7 +138,7 @@ export default function Dashboard() {
               </thead>
               <tbody>
                 {transactions?.length > 0 ? (
-                  transactions.slice(-3).map((tx, i) => (
+                  transactions.slice(-4).map((tx, i) => (
                     <tr
                       key={i}
                       className="border-b border-white/5 hover:bg-purple-600/10 transition"
